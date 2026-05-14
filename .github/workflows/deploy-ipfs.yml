@@ -1,0 +1,69 @@
+name: Deploy to IPFS
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      checksum: ${{ steps.checksum.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Build
+        env:
+          VITE_REOWN_PROJECT_ID: ${{ secrets.VITE_REOWN_PROJECT_ID }}
+          VITE_SITE_ORIGIN: ${{ vars.VITE_SITE_ORIGIN }}
+        run: bun run build
+      - name: Compute build checksum
+        id: checksum
+        run: |
+          find build -type f -print0 | sort -z | xargs -0 sha256sum > build.sha256
+          echo "value=$(sha256sum build.sha256 | cut -d ' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            build
+            build.sha256
+          retention-days: 7
+
+  pin:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - name: Verify checksum
+        run: |
+          find build -type f -print0 | sort -z | xargs -0 sha256sum > build.recomputed.sha256
+          diff build.sha256 build.recomputed.sha256
+      - name: Pin to Pinata
+        env:
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+        run: |
+          npx -y pinata-cli -a "$PINATA_JWT"
+          npx -y pinata-cli -u build > pin.txt
+          cat pin.txt
+      - name: Pin to Filebase (mirror)
+        if: ${{ env.FILEBASE_KEY != '' }}
+        env:
+          FILEBASE_KEY: ${{ secrets.FILEBASE_KEY }}
+          FILEBASE_SECRET: ${{ secrets.FILEBASE_SECRET }}
+        run: |
+          echo "Filebase mirror: configure rclone/aws cli for the s3-compatible endpoint."
+      - name: Report
+        run: |
+          echo "Build checksum: ${{ needs.build.outputs.checksum }}"
+          echo "Next steps: update ENS contenthash for safestake.denna.eth to the pinned CID."

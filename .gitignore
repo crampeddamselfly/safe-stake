@@ -1,0 +1,21 @@
+node_modules
+/build
+/.svelte-kit
+/package
+.env
+.env.*
+!.env.example
+.DS_Store
+vite.config.*.timestamp-*
+*.log
+
+# tests
+/playwright-report
+/test-results
+/coverage
+
+# editors
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

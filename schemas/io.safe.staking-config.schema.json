@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.denna.io/v1/safe/staking-config.schema.json",
+  "title": "io.safe.staking-config",
+  "description": "Per-chain configuration for an independent Safenet Beta staking UI: contract addresses, validators, reward distribution pointers, and feature flags. Designed so a forked UI can swap one JSON file and redeploy.",
+  "type": "object",
+  "required": ["$schema", "metadata", "chainId", "chainName", "contracts"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/metadata"
+    },
+    "chainId": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "EIP-155 chain id."
+    },
+    "chainName": {
+      "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/chain"
+    },
+    "deployBlock": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Block at which the staking contract was deployed. Used to scope event log lookups."
+    },
+    "rpcUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional default RPC URL. UI prefers VITE_RPC_URL_<chainId> env override at runtime."
+    },
+    "contracts": {
+      "type": "object",
+      "required": ["staking", "safeToken"],
+      "additionalProperties": false,
+      "properties": {
+        "staking": {
+          "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/address"
+        },
+        "safeToken": {
+          "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/address"
+        },
+        "sanctionsOracle": {
+          "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/address"
+        },
+        "merkleDrop": {
+          "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/address"
+        }
+      }
+    },
+    "validators": {
+      "type": "array",
+      "description": "Known validators surfaced in the analytics page. The UI also reads isValidator(address) on-chain for write-flow validation.",
+      "items": {
+        "type": "object",
+        "required": ["address", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "$ref": "https://spec.denna.io/v1/denna-types.schema.json#/$defs/address"
+          },
+          "name": { "type": "string", "minLength": 1 },
+          "websiteUrl": { "type": "string", "format": "uri" },
+          "commissionBps": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Validator commission in basis points (0-10000)."
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "merkleJsonUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL (ideally an IPFS gateway URL) to the static Merkle proofs JSON. Schema: { root: bytes32, claims: { [address]: { cumulativeAmount: string, proof: bytes32[] } } }."
+        },
+        "claimWindowSeconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "eip5792Batch": {
+          "type": "boolean",
+          "description": "Batch approve+stake using EIP-5792 wallet_sendCalls when the wallet supports atomicBatch (e.g. Safe)."
+        },
+        "geoBlock": {
+          "type": "boolean",
+          "description": "Enable geo-block hook (operator-provided endpoint or static blocklist)."
+        },
+        "sanctionsGate": {
+          "type": "boolean",
+          "description": "Block writes when sanctions oracle returns true for the connected address."
+        }
+      }
+    }
+  }
+}
