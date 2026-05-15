@@ -3,10 +3,10 @@
 > Track A operator submission for the [Safe Ecosystem Foundation RFP](https://forum.safefoundation.org/t/rfp-safenet-beta-staking-ui-call-for-operators/6992).
 > Operated by **Denna Labs**. Non-custodial. Open-source under MIT.
 
-A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change — all chain config lives in [denna-spec](https://github.com/daocraft/denna-spec) documents under the `io.safe.staking-config` kind.
+A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change — all chain config lives in two [denna-spec](https://schemas.denna.io) documents: `io.denna.defi.address-registry` (canonical) for contract addresses and `io.safe.staking-ui-config` (extension at `denna-spec-schemas/v1/safe/`) for validators, features, and reward pointers.
 
-- **Live (IPFS + ENS):** https://safestake.denna.eth.limo
-- **Live (Vercel mirror):** https://safestake.dennalabs.io
+- **Live (IPFS + ENS):** https://safenet-staking.denna.eth.limo
+- **Live (Vercel mirror):** https://safenet-staking.dennalabs.io
 - **Reference UI:** https://staking.safenet-beta.eth.limo (Foundation-run)
 
 ## Why a second interface?
@@ -33,16 +33,14 @@ src/routes/
 ├── validators/+page.svelte  analytics
 └── rewards/+page.svelte     MerkleDrop claim
 config/
-├── safe-staking-mainnet.denna-spec.json
-└── safe-staking-sepolia.denna-spec.json
-schemas/
-└── io.safe.staking-config.schema.json
+├── safenet-contracts.denna-spec.json   # io.denna.defi.address-registry (canonical)
+└── safe-stake-ui.denna-spec.json       # io.safe.staking-ui-config (extension)
 ```
 
 ## Fork & redeploy
 
 1. `git clone https://github.com/crampeddamselfly/safe-stake your-fork`
-2. Edit `config/safe-staking-*.denna-spec.json` — addresses, validators, RPC URLs.
+2. Edit `config/safenet-contracts.denna-spec.json` (addresses per chain) and `config/safe-stake-ui.denna-spec.json` (validators, features, rewards). Both are canonical [denna-spec](https://schemas.denna.io) files.
 3. Update `static/manifest.json` with your Safe App name and icon.
 4. `bun install && bun run build` → static SPA in `build/`.
 5. Pin to IPFS (`pinata-cli pin build/`) or deploy to Vercel.
@@ -72,7 +70,7 @@ bun run validate:spec # JSON Schema check on config/
 
 ## Contract addresses
 
-Loaded from `config/safe-staking-*.denna-spec.json`. Current defaults:
+Loaded from `config/safenet-contracts.denna-spec.json` (`io.denna.defi.address-registry`). Current defaults:
 
 | Network | Staking | SAFE token | Sanctions Oracle |
 |---|---|---|---|

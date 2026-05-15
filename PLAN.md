@@ -9,7 +9,7 @@ Safenet Beta, reducing centralization risk from the single foundation-run
 interface. Grant: **up to 100,000 SAFE per operator**. **Deadline:
 2026-05-17** (3 days from today, 2026-05-14).
 
-**Operator entity:** Denna Labs. **ENS:** `safestake.denna.eth`. **Track A:**
+**Operator entity:** Denna Labs. **ENS:** `safenet-staking.denna.eth`. **Track A:**
 permissionless, non-custodial, open-source. **Repo:**
 `/Users/emmettbrown/projects/safe-stake` (already cloned;
 remote `crampeddamselfly/safe-stake`, currently empty).
@@ -54,7 +54,7 @@ to the upstream `denna-spec` repo.
 | State | Svelte 5 runes + `@tanstack/svelte-query` (15s refetch like ref) |
 | Validation | Zod |
 | Tests | Vitest (unit) + Playwright (happy-path E2E only for v1) |
-| Hosting | IPFS via Pinata + Filebase mirror; Vercel mirror; ENS `safestake.denna.eth` |
+| Hosting | IPFS via Pinata + Filebase mirror; Vercel mirror; ENS `safenet-staking.denna.eth` |
 
 ---
 
@@ -212,9 +212,9 @@ Reads via viem only — no backend.
 1. **IPFS via Pinata** — primary. Workflow mirrors ref's `deploy-ipfs.yml`
    with checksum verification + manual approval gate.
 2. **Filebase mirror** — second IPFS pin for redundancy.
-3. **ENS** — register/configure `safestake.denna.eth` contenthash → CID;
+3. **ENS** — register/configure `safenet-staking.denna.eth` contenthash → CID;
    served via `.eth.limo` gateway.
-4. **Vercel mirror** — custom domain `safestake.dennalabs.io` (or similar)
+4. **Vercel mirror** — custom domain `safenet-staking.dennalabs.io` (or similar)
    for CDN + analytics.
 5. **Safe App** — `static/manifest.json`; submit to Safe App registry post-launch.
 
@@ -280,7 +280,7 @@ ready to send.
 - [ ] `static/manifest.json` (Safe App)
 - [ ] `.github/workflows/deploy-ipfs.yml` — Pinata pin + checksum
 - [ ] Pin first build to Pinata; capture CID
-- [ ] ENS: set `safestake.denna.eth` contenthash → CID
+- [ ] ENS: set `safenet-staking.denna.eth` contenthash → CID
 - [ ] Vercel mirror at custom domain
 - [ ] README polish: architecture diagram, fork-and-redeploy instructions
 - [ ] Screencast (60s): connect → stake → initiate withdrawal → claim
@@ -336,7 +336,7 @@ Each ticked off before submission:
    stake page.
 9. **Lighthouse** — performance + a11y + best-practices ≥90 (best-effort by
    deadline; deeper audit post-acceptance).
-10. **ENS resolution** — `safestake.denna.eth.limo` loads UI; matches Pinata
+10. **ENS resolution** — `safenet-staking.denna.eth.limo` loads UI; matches Pinata
     CID.
 
 ---
@@ -383,8 +383,8 @@ To `rfp+staking@safefoundation.org`:
 > `io.safe.staking-config` schema PR'd to denna-spec, so other operators can
 > fork and redeploy with one JSON change.
 >
-> **UI:** `https://safestake.denna.eth.limo` (IPFS + ENS), mirror at
-> `https://safestake.dennalabs.io` (Vercel).
+> **UI:** `https://safenet-staking.denna.eth.limo` (IPFS + ENS), mirror at
+> `https://safenet-staking.dennalabs.io` (Vercel).
 >
 > **Differentiation:** validator analytics page (commission, share, sanctions
 > status, CSV export); fully forkable config layer; non-React stack increases
@@ -401,6 +401,6 @@ To `rfp+staking@safefoundation.org`:
 
 - [ ] Pinata JWT (or auth method)
 - [ ] WalletConnect v2 project ID (free at https://cloud.reown.com)
-- [ ] ENS owner key for `safestake.denna.eth` contenthash update
-- [ ] Vercel team/project for `safestake.dennalabs.io`
+- [ ] ENS owner key for `safenet-staking.denna.eth` contenthash update
+- [ ] Vercel team/project for `safenet-staking.dennalabs.io`
 - [ ] Denna Labs legal contact + KYC docs for SEF AML

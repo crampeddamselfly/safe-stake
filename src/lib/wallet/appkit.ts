@@ -44,7 +44,7 @@ export function initAppKit(): void {
     metadata: {
       name: "Safe Stake — Denna Labs",
       description: "Independent non-custodial staking UI for Safenet Beta.",
-      url: import.meta.env.VITE_SITE_ORIGIN ?? "https://safestake.denna.eth.limo",
+      url: import.meta.env.VITE_SITE_ORIGIN ?? "https://safenet-staking.denna.eth.limo",
       icons: []
     },
     features: { analytics: false, email: false, socials: false }

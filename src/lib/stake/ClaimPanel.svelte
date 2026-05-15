@@ -10,6 +10,8 @@
   import { claimWithdrawal } from "$lib/hooks/useStakingWrites"
   import { formatSafe, truncateAddress, formatCountdown } from "$lib/utils/format"
   import { useQueryClient } from "@tanstack/svelte-query"
+  import { formatContractError } from "$lib/utils/errors"
+  import { txUrl } from "$lib/utils/explorer"
 
   const pending = pendingWithdrawalsQuery()
   const next = nextClaimableQuery()
@@ -32,14 +34,15 @@
       pushToast({
         kind: "success",
         title: "Claimed",
-        detail: `Tx ${truncateAddress(res.hash)}`
+        detail: `Tx ${truncateAddress(res.hash)}`,
+        link: { href: txUrl($chainId, res.hash), label: "View on Etherscan" }
       })
       await qc.invalidateQueries()
     } catch (err) {
       pushToast({
         kind: "error",
         title: "Claim failed",
-        detail: err instanceof Error ? err.message : String(err)
+        detail: formatContractError(err)
       })
     } finally {
       busy = false

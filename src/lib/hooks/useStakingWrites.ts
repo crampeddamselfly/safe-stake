@@ -53,7 +53,7 @@ async function tryBatchApproveAndStake(
   const approveData = encodeFunctionData({
     abi: erc20Abi,
     functionName: "approve",
-    args: [cfg.contracts.staking.value, amount]
+    args: [cfg.contracts.staking, amount]
   })
   const stakeData = encodeFunctionData({
     abi: stakingAbi,
@@ -63,8 +63,8 @@ async function tryBatchApproveAndStake(
 
   const { id } = await client.sendCalls({
     calls: [
-      { to: cfg.contracts.safeToken.value, data: approveData },
-      { to: cfg.contracts.staking.value, data: stakeData }
+      { to: cfg.contracts.safeToken, data: approveData },
+      { to: cfg.contracts.staking, data: stakeData }
     ]
   })
 
@@ -104,17 +104,17 @@ export async function approveAndStake(
   }
 
   const approveHash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.safeToken.value,
+    address: cfg.contracts.safeToken,
     abi: erc20Abi,
     functionName: "approve",
-    args: [cfg.contracts.staking.value, amount]
+    args: [cfg.contracts.staking, amount]
   })
   onStep("confirming")
   await waitForTransactionReceipt(wagmiConfig, { hash: approveHash, chainId })
 
   onStep("staking")
   const stakeHash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.staking.value,
+    address: cfg.contracts.staking,
     abi: stakingAbi,
     functionName: "stake",
     args: [validator, amount]
@@ -136,7 +136,7 @@ export async function initiateWithdrawal(
   const cfg = getConfig(chainId)
   const wagmiConfig = getWagmiConfig()
   const hash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.staking.value,
+    address: cfg.contracts.staking,
     abi: stakingAbi,
     functionName: "initiateWithdrawal",
     args: [validator, amount]
@@ -149,7 +149,7 @@ export async function claimWithdrawal(chainId: number): Promise<WriteResult> {
   const cfg = getConfig(chainId)
   const wagmiConfig = getWagmiConfig()
   const hash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.staking.value,
+    address: cfg.contracts.staking,
     abi: stakingAbi,
     functionName: "claimWithdrawal"
   })

@@ -5,6 +5,7 @@
   import { initAppKit } from "$lib/wallet/appkit"
   import Toaster from "$lib/ui/Toaster.svelte"
   import ConnectButton from "$lib/ui/ConnectButton.svelte"
+  import MainnetBanner from "$lib/ui/MainnetBanner.svelte"
   import { page } from "$app/state"
 
   let { children } = $props()
@@ -31,6 +32,7 @@
 
 <QueryClientProvider client={queryClient}>
   <div class="min-h-screen">
+    <MainnetBanner />
     <header class="border-b border-border bg-bg-elev/70 backdrop-blur">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <a href="/" class="flex items-center gap-2 font-semibold text-fg">

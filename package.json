@@ -21,7 +21,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "verify:merkle": "tsx scripts/verify-merkle.ts",
-    "validate:spec": "ajv validate -s schemas/io.safe.staking-config.schema.json -d 'config/*.denna-spec.json'"
+    "pin:ipfs": "tsx scripts/pin-to-ipfs.ts",
+    "validate:spec": "ajv validate -s ../denna-spec-schemas/v1/defi/address-registry.schema.json -d config/safenet-contracts.denna-spec.json && ajv validate -s ../denna-spec-schemas/v1/safe/staking-ui-config.schema.json -d config/safe-stake-ui.denna-spec.json"
   },
   "dependencies": {
     "@reown/appkit": "^1.6.0",

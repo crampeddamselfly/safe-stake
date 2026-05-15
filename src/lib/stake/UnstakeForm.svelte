@@ -10,6 +10,8 @@
   import { stakedBalanceQuery } from "$lib/hooks/useStakingReads"
   import { useQueryClient } from "@tanstack/svelte-query"
   import { truncateAddress } from "$lib/utils/format"
+  import { formatContractError } from "$lib/utils/errors"
+  import { txUrl } from "$lib/utils/explorer"
 
   const staked = stakedBalanceQuery()
   const sanctioned = sanctionsQuery()
@@ -36,14 +38,15 @@
       pushToast({
         kind: "success",
         title: "Withdrawal initiated",
-        detail: `Tx ${truncateAddress(res.hash)} — cooldown begins now.`
+        detail: `Tx ${truncateAddress(res.hash)} — cooldown begins now.`,
+        link: { href: txUrl($chainId, res.hash), label: "View on Etherscan" }
       })
       await qc.invalidateQueries()
     } catch (err) {
       pushToast({
         kind: "error",
         title: "Withdrawal failed",
-        detail: err instanceof Error ? err.message : String(err)
+        detail: formatContractError(err)
       })
     } finally {
       busy = false

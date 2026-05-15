@@ -29,7 +29,7 @@ export function stakedBalanceQuery() {
         if (!ac.address) return 0n
         const cfg = getConfig(ac.chainId)
         return getPublicClient(ac.chainId).readContract({
-          address: cfg.contracts.staking.value,
+          address: cfg.contracts.staking,
           abi: stakingAbi,
           functionName: "totalStakerStakes",
           args: [ac.address]
@@ -49,7 +49,7 @@ export function safeBalanceQuery() {
         if (!ac.address) return 0n
         const cfg = getConfig(ac.chainId)
         return getPublicClient(ac.chainId).readContract({
-          address: cfg.contracts.safeToken.value,
+          address: cfg.contracts.safeToken,
           abi: erc20Abi,
           functionName: "balanceOf",
           args: [ac.address]
@@ -69,10 +69,10 @@ export function allowanceQuery() {
         if (!ac.address) return 0n
         const cfg = getConfig(ac.chainId)
         return getPublicClient(ac.chainId).readContract({
-          address: cfg.contracts.safeToken.value,
+          address: cfg.contracts.safeToken,
           abi: erc20Abi,
           functionName: "allowance",
-          args: [ac.address, cfg.contracts.staking.value]
+          args: [ac.address, cfg.contracts.staking]
         })
       },
       enabled: !!ac.address,
@@ -94,7 +94,7 @@ export function pendingWithdrawalsQuery() {
         if (!ac.address) return []
         const cfg = getConfig(ac.chainId)
         return getPublicClient(ac.chainId).readContract({
-          address: cfg.contracts.staking.value,
+          address: cfg.contracts.staking,
           abi: stakingAbi,
           functionName: "getPendingWithdrawals",
           args: [ac.address]
@@ -114,7 +114,7 @@ export function nextClaimableQuery() {
         if (!ac.address) return { amount: 0n, claimableAt: 0n }
         const cfg = getConfig(ac.chainId)
         const [amount, claimableAt] = (await getPublicClient(ac.chainId).readContract({
-          address: cfg.contracts.staking.value,
+          address: cfg.contracts.staking,
           abi: stakingAbi,
           functionName: "getNextClaimableWithdrawal",
           args: [ac.address]
@@ -134,7 +134,7 @@ export function withdrawDelayQuery() {
       queryFn: async (): Promise<bigint> => {
         const cfg = getConfig($c)
         return getPublicClient($c).readContract({
-          address: cfg.contracts.staking.value,
+          address: cfg.contracts.staking,
           abi: stakingAbi,
           functionName: "withdrawDelay"
         })
@@ -151,7 +151,7 @@ export function totalStakedQuery() {
       queryFn: async (): Promise<bigint> => {
         const cfg = getConfig($c)
         return getPublicClient($c).readContract({
-          address: cfg.contracts.staking.value,
+          address: cfg.contracts.staking,
           abi: stakingAbi,
           functionName: "totalStakedAmount"
         })
@@ -176,13 +176,13 @@ export function validatorsQuery() {
         if (cfg.validators.length === 0) return []
         const calls = cfg.validators.flatMap((v) => [
           {
-            address: cfg.contracts.staking.value,
+            address: cfg.contracts.staking,
             abi: stakingAbi,
             functionName: "isValidator" as const,
             args: [v.address.value] as const
           },
           {
-            address: cfg.contracts.staking.value,
+            address: cfg.contracts.staking,
             abi: stakingAbi,
             functionName: "totalValidatorStakes" as const,
             args: [v.address.value] as const

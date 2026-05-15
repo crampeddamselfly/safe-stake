@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.denna.io/v1/defi/address-registry.schema.json",
+  "metadata": {
+    "id": "safenet-contracts",
+    "name": "Safenet Beta contract addresses",
+    "kind": "io.denna.defi.address-registry",
+    "description": "Canonical multi-chain registry of Safenet Beta contract addresses (staking, SAFE token, sanctions oracle, Merkle drop). Consumed by the Denna Labs staking UI and any other tooling.",
+    "version": "1.0.0",
+    "lastUpdated": "2026-05-15",
+    "tags": ["safe", "safenet-beta", "staking", "addresses"],
+    "source": {
+      "repository": "github.com/safe-fndn/safenet-staking-ui",
+      "references": ["src/config/contracts.ts"]
+    }
+  },
+  "addresses": {
+    "staking": {
+      "description": "Safenet Beta staking contract — stake, initiateWithdrawal, claimWithdrawal.",
+      "entries": [
+        {
+          "chain": "ethereum",
+          "address": { "value": "0x115E78f160e1E3eF163B05C84562Fa16fA338509", "format": "evm" }
+        },
+        {
+          "chain": "sepolia",
+          "address": { "value": "0x40745eec3fD6E4C005de1dec0031b2EA9f9D7c42", "format": "evm" }
+        }
+      ]
+    },
+    "safeToken": {
+      "description": "SAFE governance token (ERC-20).",
+      "entries": [
+        {
+          "chain": "ethereum",
+          "address": { "value": "0x5aFE3855358E112B5647B952709E6165e1c1eEEe", "format": "evm" }
+        },
+        {
+          "chain": "sepolia",
+          "address": { "value": "0xef98bcc90b1373b2ae0d23ec318d3ee70ea61af4", "format": "evm" },
+          "notes": "Test SAFE token. symbol() returns 'stake' on the test deployment."
+        }
+      ]
+    },
+    "sanctionsOracle": {
+      "description": "Chainalysis-style sanctions oracle — gates writes when isSanctioned(addr) returns true.",
+      "entries": [
+        {
+          "chain": "ethereum",
+          "address": { "value": "0x40C57923924B5c5c5455c48D93317139ADDaC8fb", "format": "evm" }
+        }
+      ]
+    }
+  }
+}

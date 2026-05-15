@@ -10,10 +10,11 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-pin:
     runs-on: ubuntu-latest
+    environment: production
     outputs:
-      checksum: ${{ steps.checksum.outputs.value }}
+      cid: ${{ steps.pin.outputs.cid }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -21,13 +22,27 @@ jobs:
       - name: Build
         env:
           VITE_REOWN_PROJECT_ID: ${{ secrets.VITE_REOWN_PROJECT_ID }}
-          VITE_SITE_ORIGIN: ${{ vars.VITE_SITE_ORIGIN }}
+          VITE_SITE_ORIGIN: ${{ vars.VITE_SITE_ORIGIN || 'https://safenet-staking.denna.eth.limo' }}
         run: bun run build
       - name: Compute build checksum
-        id: checksum
         run: |
           find build -type f -print0 | sort -z | xargs -0 sha256sum > build.sha256
-          echo "value=$(sha256sum build.sha256 | cut -d ' ' -f1)" >> "$GITHUB_OUTPUT"
+          sha256sum build.sha256
+      - name: Pin to Pinata
+        id: pin
+        env:
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+        run: bun run pin:ipfs
+      - name: Summary
+        run: |
+          echo "## IPFS pin successful" >> $GITHUB_STEP_SUMMARY
+          echo "CID: \`${{ steps.pin.outputs.cid }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Set ENS contenthash for \`safenet-staking.denna.eth\`:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "    ipfs://${{ steps.pin.outputs.cid }}/safe-stake/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[Open ENS app](https://app.ens.domains/safenet-staking.denna.eth)" >> $GITHUB_STEP_SUMMARY
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -35,35 +50,4 @@ jobs:
           path: |
             build
             build.sha256
-          retention-days: 7
-
-  pin:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-      - name: Verify checksum
-        run: |
-          find build -type f -print0 | sort -z | xargs -0 sha256sum > build.recomputed.sha256
-          diff build.sha256 build.recomputed.sha256
-      - name: Pin to Pinata
-        env:
-          PINATA_JWT: ${{ secrets.PINATA_JWT }}
-        run: |
-          npx -y pinata-cli -a "$PINATA_JWT"
-          npx -y pinata-cli -u build > pin.txt
-          cat pin.txt
-      - name: Pin to Filebase (mirror)
-        if: ${{ env.FILEBASE_KEY != '' }}
-        env:
-          FILEBASE_KEY: ${{ secrets.FILEBASE_KEY }}
-          FILEBASE_SECRET: ${{ secrets.FILEBASE_SECRET }}
-        run: |
-          echo "Filebase mirror: configure rclone/aws cli for the s3-compatible endpoint."
-      - name: Report
-        run: |
-          echo "Build checksum: ${{ needs.build.outputs.checksum }}"
-          echo "Next steps: update ENS contenthash for safestake.denna.eth to the pinned CID."
+          retention-days: 14

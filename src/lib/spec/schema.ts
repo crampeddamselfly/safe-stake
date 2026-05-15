@@ -6,13 +6,10 @@ const evmAddress = z
     value: z.string(),
     format: z.literal("evm")
   })
-  .refine((a) => isAddress(a.value), {
-    message: "Invalid EVM address"
-  })
-  .transform((a) => ({
-    value: getAddress(a.value),
-    format: "evm" as const
-  }))
+  .refine((a) => isAddress(a.value), { message: "Invalid EVM address" })
+  .transform((a) => ({ value: getAddress(a.value), format: "evm" as const }))
+
+const chainName = z.string().regex(/^[a-z][a-z0-9_-]*$/)
 
 const metadata = z.object({
   id: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
@@ -30,6 +27,28 @@ const metadata = z.object({
     .optional()
 })
 
+// io.denna.defi.address-registry
+const addressGroup = z.object({
+  description: z.string().optional(),
+  source: z.string().optional(),
+  entries: z
+    .array(
+      z.object({
+        chain: chainName,
+        address: evmAddress,
+        notes: z.string().optional()
+      })
+    )
+    .min(1)
+})
+
+export const addressRegistrySchema = z.object({
+  $schema: z.string(),
+  metadata,
+  addresses: z.record(z.string(), addressGroup)
+})
+
+// io.safe.staking-ui-config
 const validatorEntry = z.object({
   address: evmAddress,
   name: z.string().min(1),
@@ -38,19 +57,11 @@ const validatorEntry = z.object({
   description: z.string().optional()
 })
 
-export const stakingConfigSchema = z.object({
-  $schema: z.string(),
-  metadata,
+const chainEntry = z.object({
+  chain: chainName,
   chainId: z.number().int().min(1),
-  chainName: z.string().regex(/^[a-z][a-z0-9_-]*$/),
   deployBlock: z.number().int().min(0).optional(),
   rpcUrl: z.string().url().optional(),
-  contracts: z.object({
-    staking: evmAddress,
-    safeToken: evmAddress,
-    sanctionsOracle: evmAddress.optional(),
-    merkleDrop: evmAddress.optional()
-  }),
   validators: z.array(validatorEntry).default([]),
   rewards: z
     .object({
@@ -67,5 +78,14 @@ export const stakingConfigSchema = z.object({
     .default({})
 })
 
-export type StakingConfig = z.output<typeof stakingConfigSchema>
+export const stakingUiConfigSchema = z.object({
+  $schema: z.string(),
+  metadata,
+  addressRegistry: z.string().optional(),
+  chains: z.array(chainEntry).min(1)
+})
+
+export type AddressRegistry = z.output<typeof addressRegistrySchema>
+export type StakingUiConfig = z.output<typeof stakingUiConfigSchema>
+export type ChainEntry = z.output<typeof chainEntry>
 export type ValidatorEntry = z.output<typeof validatorEntry>

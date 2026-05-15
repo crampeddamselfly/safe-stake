@@ -66,7 +66,7 @@ export function rewardsQuery() {
         }
         const cumulative = BigInt(entry.cumulativeAmount)
         const claimed = await getPublicClient($c).readContract({
-          address: drop.value,
+          address: drop,
           abi: merkleDropAbi,
           functionName: "cumulativeClaimed",
           args: [$a.address]
@@ -99,7 +99,7 @@ export async function claimRewards(
   if (!cfg.contracts.merkleDrop) throw new Error("MerkleDrop not configured for this chain.")
   const wagmiConfig = getWagmiConfig()
   const hash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.merkleDrop.value,
+    address: cfg.contracts.merkleDrop,
     abi: merkleDropAbi,
     functionName: "claim",
     args: [account, cumulativeAmount, root, proof]

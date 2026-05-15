@@ -6,6 +6,7 @@
     kind: "info" | "success" | "error"
     title: string
     detail?: string
+    link?: { href: string; label: string }
   }
 
   export const toasts = writable<Toast[]>([])
@@ -41,6 +42,16 @@
       <p class="text-sm font-medium text-fg">{t.title}</p>
       {#if t.detail}
         <p class="mt-1 text-xs text-fg-muted break-all">{t.detail}</p>
+      {/if}
+      {#if t.link}
+        <p class="mt-1 text-xs">
+          <a
+            class="text-accent underline"
+            href={t.link.href}
+            target="_blank"
+            rel="noopener"
+          >{t.link.label} ↗</a>
+        </p>
       {/if}
     </div>
   {/each}

@@ -8,6 +8,8 @@
   import { pushToast } from "$lib/ui/Toaster.svelte"
   import { useQueryClient } from "@tanstack/svelte-query"
   import { formatSafe, truncateAddress } from "$lib/utils/format"
+  import { formatContractError } from "$lib/utils/errors"
+  import { txUrl } from "$lib/utils/explorer"
 
   const rewards = rewardsQuery()
   const sanctioned = sanctionsQuery()
@@ -37,14 +39,15 @@
       pushToast({
         kind: "success",
         title: "Rewards claimed",
-        detail: `Tx ${truncateAddress(res.hash)}`
+        detail: `Tx ${truncateAddress(res.hash)}`,
+        link: { href: txUrl($chainId, res.hash), label: "View on Etherscan" }
       })
       await qc.invalidateQueries()
     } catch (err) {
       pushToast({
         kind: "error",
         title: "Claim failed",
-        detail: err instanceof Error ? err.message : String(err)
+        detail: formatContractError(err)
       })
     } finally {
       busy = false

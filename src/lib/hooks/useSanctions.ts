@@ -14,7 +14,7 @@ export function sanctionsQuery() {
         const cfg = getConfig($c)
         if (!cfg.features.sanctionsGate || !cfg.contracts.sanctionsOracle) return false
         return getPublicClient($c).readContract({
-          address: cfg.contracts.sanctionsOracle.value,
+          address: cfg.contracts.sanctionsOracle,
           abi: sanctionsOracleAbi,
           functionName: "isSanctioned",
           args: [$a.address]
