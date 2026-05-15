@@ -3,7 +3,7 @@
 > Track A operator submission for the [Safe Ecosystem Foundation RFP](https://forum.safefoundation.org/t/rfp-safenet-beta-staking-ui-call-for-operators/6992).
 > Operated by **Denna Labs**. Non-custodial. Open-source under MIT.
 
-A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change — all chain config lives in two [denna-spec](https://schemas.denna.io) documents: `io.denna.defi.address-registry` (canonical) for contract addresses and `io.safe.staking-ui-config` (extension at `denna-spec-schemas/v1/safe/`) for validators, features, and reward pointers.
+A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change — all chain config lives in two [denna-spec](https://spec.denna.io) documents: `io.denna.defi.address-registry` for contract addresses and `io.safe.staking-ui-config` for validators, features, and reward pointers. Both schemas live in the canonical [`denna-spec`](https://github.com/daocraft/denna-spec) repo.
 
 - **Live (IPFS + ENS):** https://safenet-staking.denna.eth.limo
 - **Live (Vercel mirror):** https://safenet-staking.dennalabs.io

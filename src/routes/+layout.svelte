@@ -6,7 +6,9 @@
   import Toaster from "$lib/ui/Toaster.svelte"
   import ConnectButton from "$lib/ui/ConnectButton.svelte"
   import MainnetBanner from "$lib/ui/MainnetBanner.svelte"
+  import SettingsDialog from "$lib/ui/SettingsDialog.svelte"
   import { page } from "$app/state"
+  import { base } from "$app/paths"
 
   let { children } = $props()
 
@@ -35,15 +37,14 @@
     <MainnetBanner />
     <header class="border-b border-border bg-bg-elev/70 backdrop-blur">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <a href="/" class="flex items-center gap-2 font-semibold text-fg">
-          <span
-            class="grid size-7 place-items-center rounded-sm bg-accent text-accent-fg font-mono"
-            aria-hidden="true"
-          >S</span>
-          Safe Stake
-          <span class="ml-2 rounded-sm border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-fg-muted"
-            >Denna Labs</span
-          >
+        <a href="/" class="flex items-center gap-2 text-fg" aria-label="Safenet — home">
+          <img
+            src="{base}/brand/safenet-logo.svg"
+            alt="Safenet"
+            width="109"
+            height="22"
+            class="h-5 w-auto"
+          />
         </a>
         <nav aria-label="Primary" class="flex items-center gap-2 text-sm">
           {#each navItems as item}
@@ -56,6 +57,7 @@
               {item.label}
             </a>
           {/each}
+          <SettingsDialog />
           <ConnectButton />
         </nav>
       </div>
@@ -65,15 +67,25 @@
       {@render children()}
     </main>
 
-    <footer class="mx-auto max-w-5xl px-4 py-8 text-xs text-fg-muted">
-      <p>
-        Independent Track A operator submission to the
-        <a class="underline" href="https://forum.safefoundation.org/t/rfp-safenet-beta-staking-ui-call-for-operators/6992"
-          >Safe Foundation RFP</a
-        >. Non-custodial. Open source on
-        <a class="underline" href="https://github.com/crampeddamselfly/safe-stake">GitHub</a>.
-        Operated by Denna Labs.
-      </p>
+    <footer class="mx-auto max-w-5xl px-4 py-10 text-xs text-fg-muted">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Independent Track A operator submission to the
+          <a class="underline" href="https://forum.safefoundation.org/t/rfp-safenet-beta-staking-ui-call-for-operators/6992"
+            >Safe Foundation RFP</a
+          >. Non-custodial. Open source on
+          <a class="underline" href="https://github.com/crampeddamselfly/safe-stake">GitHub</a>.
+        </p>
+        <p class="shrink-0">
+          by
+          <a
+            class="font-medium text-fg underline-offset-4 hover:underline"
+            href="https://denna.io"
+            target="_blank"
+            rel="noopener"
+          >Denna Labs</a>
+        </p>
+      </div>
     </footer>
   </div>
   <Toaster />

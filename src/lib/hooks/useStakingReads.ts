@@ -164,6 +164,8 @@ export function totalStakedQuery() {
 export type ValidatorRow = ValidatorEntry & {
   totalStaked: bigint
   isRegistered: boolean
+  participationRateBps?: number
+  isActive?: boolean
 }
 
 export function validatorsQuery() {
@@ -174,30 +176,63 @@ export function validatorsQuery() {
         const cfg = getConfig($c)
         const client = getPublicClient($c)
         if (cfg.validators.length === 0) return []
-        const calls = cfg.validators.flatMap((v) => [
-          {
-            address: cfg.contracts.staking,
-            abi: stakingAbi,
-            functionName: "isValidator" as const,
-            args: [v.address.value] as const
-          },
-          {
-            address: cfg.contracts.staking,
-            abi: stakingAbi,
-            functionName: "totalValidatorStakes" as const,
-            args: [v.address.value] as const
-          }
-        ])
-        const results = await client.multicall({ contracts: calls, allowFailure: true })
-        return cfg.validators.map((v, i) => {
-          const isRegResult = results[i * 2]
-          const stakeResult = results[i * 2 + 1]
-          return {
-            ...v,
-            isRegistered: isRegResult?.status === "success" ? (isRegResult.result as boolean) : false,
-            totalStaked: stakeResult?.status === "success" ? (stakeResult.result as bigint) : 0n
-          }
-        })
+
+        // Some public RPCs reject multicall3, and some chains have it at a
+        // non-default address. Try multicall first; fall back to parallel
+        // single reads on any failure so the page never goes empty.
+        try {
+          const calls = cfg.validators.flatMap((v) => [
+            {
+              address: cfg.contracts.staking,
+              abi: stakingAbi,
+              functionName: "isValidator" as const,
+              args: [v.address.value] as const
+            },
+            {
+              address: cfg.contracts.staking,
+              abi: stakingAbi,
+              functionName: "totalValidatorStakes" as const,
+              args: [v.address.value] as const
+            }
+          ])
+          const results = await client.multicall({ contracts: calls, allowFailure: true })
+          return cfg.validators.map((v, i) => {
+            const isRegResult = results[i * 2]
+            const stakeResult = results[i * 2 + 1]
+            return {
+              ...v,
+              isRegistered:
+                isRegResult?.status === "success" ? (isRegResult.result as boolean) : false,
+              totalStaked:
+                stakeResult?.status === "success" ? (stakeResult.result as bigint) : 0n
+            }
+          })
+        } catch {
+          const settled = await Promise.all(
+            cfg.validators.map(async (v) => {
+              const [reg, stake] = await Promise.allSettled([
+                client.readContract({
+                  address: cfg.contracts.staking,
+                  abi: stakingAbi,
+                  functionName: "isValidator",
+                  args: [v.address.value]
+                }),
+                client.readContract({
+                  address: cfg.contracts.staking,
+                  abi: stakingAbi,
+                  functionName: "totalValidatorStakes",
+                  args: [v.address.value]
+                })
+              ])
+              return {
+                ...v,
+                isRegistered: reg.status === "fulfilled" ? (reg.value as boolean) : false,
+                totalStaked: stake.status === "fulfilled" ? (stake.value as bigint) : 0n
+              } as ValidatorRow
+            })
+          )
+          return settled
+        }
       },
       refetchInterval: REFRESH_MS * 2
     }))

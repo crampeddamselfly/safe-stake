@@ -22,7 +22,7 @@
     "test:e2e": "playwright test",
     "verify:merkle": "tsx scripts/verify-merkle.ts",
     "pin:ipfs": "tsx scripts/pin-to-ipfs.ts",
-    "validate:spec": "ajv validate -s ../denna-spec-schemas/v1/defi/address-registry.schema.json -d config/safenet-contracts.denna-spec.json && ajv validate -s ../denna-spec-schemas/v1/safe/staking-ui-config.schema.json -d config/safe-stake-ui.denna-spec.json"
+    "validate:spec": "ajv validate --spec=draft2020 -c ajv-formats -s ../denna-spec/v1/defi/address-registry.schema.json -r ../denna-spec/v1/denna-types.schema.json -d config/safenet-contracts.denna-spec.json && ajv validate --spec=draft2020 -c ajv-formats -s ../denna-spec/v1/safe/staking-ui-config.schema.json -r ../denna-spec/v1/denna-types.schema.json -d config/safe-stake-ui.denna-spec.json"
   },
   "dependencies": {
     "@reown/appkit": "^1.6.0",

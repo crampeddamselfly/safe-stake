@@ -2,6 +2,7 @@
   import Card from "$lib/ui/Card.svelte"
   import Button from "$lib/ui/Button.svelte"
   import { validatorsQuery, totalStakedQuery } from "$lib/hooks/useStakingReads"
+  import { validatorMetaQuery } from "$lib/hooks/useValidatorMeta"
   import {
     decorate,
     sortRows,
@@ -14,6 +15,7 @@
 
   const validators = validatorsQuery()
   const totalStaked = totalStakedQuery()
+  const meta = validatorMetaQuery()
 
   let sortKey = $state<SortKey>("totalStaked")
   let sortDir = $state<SortDir>("desc")
@@ -22,7 +24,17 @@
 
   const rows = $derived.by(() => {
     if (!$validators.data) return []
-    const decorated = decorate($validators.data, $totalStaked.data ?? 0n)
+    const enriched = $validators.data.map((v) => {
+      const m = $meta.data?.get(v.address.value)
+      if (!m) return v
+      return {
+        ...v,
+        commissionBps: v.commissionBps ?? m.commissionBps,
+        participationRateBps: m.participationRateBps,
+        isActive: m.isActive
+      }
+    })
+    const decorated = decorate(enriched, $totalStaked.data ?? 0n)
     const filtered = recommendedOnly ? applyRecommendedFilter(decorated) : decorated
     const searched = query
       ? filtered.filter(
@@ -50,6 +62,8 @@
         address: r.address.value,
         isRegistered: r.isRegistered ? "yes" : "no",
         commissionBps: r.commissionBps ?? "",
+        participationRateBps: r.participationRateBps ?? "",
+        isActive: r.isActive === undefined ? "" : r.isActive ? "yes" : "no",
         totalStakedSafe: formatSafe(r.totalStaked, { precision: 6 }),
         sharePercent: (r.share * 100).toFixed(4)
       }))
@@ -67,7 +81,7 @@
   <title>Validators — Safe Stake</title>
 </svelte:head>
 
-<Card title="Validators" description="Independent operator view. All data read directly from the staking contract.">
+<Card title="Validators" description="Independent operator view. On-chain stake + registration from the staking contract; commission and participation from safe-fndn/safenet-beta-data.">
   <div class="mb-4 flex flex-wrap items-center gap-3">
     <input
       type="search"
@@ -88,7 +102,7 @@
   {#if $validators.isLoading}
     <p class="text-sm text-fg-muted">Loading validators…</p>
   {:else if rows.length === 0}
-    <p class="text-sm text-fg-muted">No validators in this chain's config yet. Operators can add them in <code>config/safe-staking-*.denna-spec.json</code>.</p>
+    <p class="text-sm text-fg-muted">No validators in this chain's config yet. Operators can add them in <code>config/safe-stake-ui.denna-spec.json</code>.</p>
   {:else}
     <div class="overflow-x-auto rounded-md border border-border">
       <table class="w-full text-sm">
@@ -115,6 +129,7 @@
                 Share{sortIndicator("share")}
               </button>
             </th>
+            <th class="px-3 py-2 text-right" title="14-day attestation participation rate from safe-fndn/safenet-beta-data">Participation</th>
             <th class="px-3 py-2 text-right">Status</th>
           </tr>
         </thead>
@@ -136,10 +151,21 @@
               <td class="px-3 py-2 text-right font-mono">{formatSafe(r.totalStaked)}</td>
               <td class="px-3 py-2 text-right">{(r.share * 100).toFixed(2)}%</td>
               <td class="px-3 py-2 text-right">
-                {#if r.isRegistered}
-                  <span class="rounded-sm bg-accent/20 px-2 py-0.5 text-xs text-accent">Registered</span>
+                {#if r.participationRateBps !== undefined}
+                  {(r.participationRateBps / 100).toFixed(2)}%
                 {:else}
-                  <span class="rounded-sm bg-warning/20 px-2 py-0.5 text-xs text-warning">Unregistered</span>
+                  <span class="text-fg-muted">—</span>
+                {/if}
+              </td>
+              <td class="px-3 py-2 text-right">
+                {#if r.isRegistered}
+                  {#if r.isActive === false}
+                    <span class="rounded-sm bg-warning/20 px-2 py-0.5 text-xs text-warning">Inactive</span>
+                  {:else}
+                    <span class="rounded-sm bg-accent/20 px-2 py-0.5 text-xs text-accent">Active</span>
+                  {/if}
+                {:else}
+                  <span class="rounded-sm bg-danger/20 px-2 py-0.5 text-xs text-danger">Unregistered</span>
                 {/if}
               </td>
             </tr>

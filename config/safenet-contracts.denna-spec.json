@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schemas.denna.io/v1/defi/address-registry.schema.json",
+  "$schema": "https://spec.denna.io/v1/defi/address-registry.schema.json",
   "metadata": {
     "id": "safenet-contracts",
     "name": "Safenet Beta contract addresses",

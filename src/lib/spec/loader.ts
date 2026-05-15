@@ -78,6 +78,19 @@ export function getAllConfigs(): ResolvedConfig[] {
 }
 
 export function getRpcUrl(chainId: number): string | undefined {
+  // Precedence: localStorage override → env var → spec → viem default
+  if (typeof window !== "undefined") {
+    try {
+      const raw = window.localStorage.getItem("safe-stake.rpcOverrides")
+      if (raw) {
+        const obj = JSON.parse(raw) as Record<string, string>
+        const o = obj[String(chainId)]
+        if (o) return o
+      }
+    } catch {
+      // ignore
+    }
+  }
   const envKey = `VITE_RPC_URL_${chainId}` as const
   const envVal = import.meta.env[envKey] as string | undefined
   if (envVal && envVal.length > 0) return envVal
