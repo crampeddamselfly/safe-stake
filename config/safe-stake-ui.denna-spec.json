@@ -6,7 +6,7 @@
     "kind": "io.safe.staking-ui-config",
     "description": "Operator-specific configuration for the Denna Labs Safenet Beta staking UI: chain metadata, validator surface, reward Merkle pointers, feature flags.",
     "version": "1.0.0",
-    "lastUpdated": "2026-05-15",
+    "lastUpdated": "2026-05-16",
     "tags": ["safe", "safenet-beta", "staking", "track-a"]
   },
   "addressRegistry": "./safenet-contracts.denna-spec.json",
@@ -52,43 +52,6 @@
         "eip5792Batch": true,
         "geoBlock": false,
         "sanctionsGate": true
-      }
-    },
-    {
-      "chain": "sepolia",
-      "chainId": 11155111,
-      "deployBlock": 0,
-      "validators": [
-        {
-          "address": { "value": "0x3D58a5475c1336b0A755c3aBd298CeB9b7BB9CDe", "format": "evm" },
-          "name": "Gnosis",
-          "commissionBps": 500
-        },
-        {
-          "address": { "value": "0x7B0A8EFA45dE81F11F2846EC28259B62155a2b37", "format": "evm" },
-          "name": "Greenfield",
-          "commissionBps": 500
-        },
-        {
-          "address": { "value": "0xb0E735D4a3b70195420E0ae933689A55750CFcd2", "format": "evm" },
-          "name": "RockawayX",
-          "commissionBps": 500
-        },
-        {
-          "address": { "value": "0xD8997c2a94052C4FB79B53b3e255c1F07c99305B", "format": "evm" },
-          "name": "Blockchain Capital",
-          "commissionBps": 500
-        },
-        {
-          "address": { "value": "0xF6EA21D702983c443f58A267265912FE03D2FF0b", "format": "evm" },
-          "name": "Safe Labs",
-          "commissionBps": 500
-        }
-      ],
-      "features": {
-        "eip5792Batch": true,
-        "geoBlock": false,
-        "sanctionsGate": false
       }
     }
   ]

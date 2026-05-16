@@ -127,6 +127,27 @@ export function nextClaimableQuery() {
   )
 }
 
+export function stakedAtValidatorQuery(validator: () => Address | undefined) {
+  return createQuery(
+    derived(accountChain, (ac) => ({
+      queryKey: ["stakedAtValidator", ac.chainId, ac.address ?? null, validator() ?? null] as const,
+      queryFn: async (): Promise<bigint> => {
+        const v = validator()
+        if (!ac.address || !v) return 0n
+        const cfg = getConfig(ac.chainId)
+        return getPublicClient(ac.chainId).readContract({
+          address: cfg.contracts.staking,
+          abi: stakingAbi,
+          functionName: "stakes",
+          args: [ac.address, v]
+        })
+      },
+      enabled: !!ac.address && !!validator(),
+      refetchInterval: REFRESH_MS
+    }))
+  )
+}
+
 export function withdrawDelayQuery() {
   return createQuery(
     derived(chainId, ($c) => ({

@@ -1,52 +1,21 @@
 <script lang="ts">
-  import Card from "$lib/ui/Card.svelte"
-  import StatNumber from "$lib/ui/StatNumber.svelte"
-  import StakeTabs from "$lib/stake/StakeTabs.svelte"
-  import { account } from "$lib/wallet/appkit"
-  import {
-    stakedBalanceQuery,
-    safeBalanceQuery,
-    pendingWithdrawalsQuery
-  } from "$lib/hooks/useStakingReads"
-  import { formatSafe } from "$lib/utils/format"
-
-  const staked = stakedBalanceQuery()
-  const balance = safeBalanceQuery()
-  const pending = pendingWithdrawalsQuery()
-
-  const pendingTotal = $derived(
-    ($pending.data ?? []).reduce((sum, w) => sum + w.amount, 0n)
-  )
+  import ValidatorStats from "$lib/components/validators/ValidatorStats.svelte"
+  import ValidatorTable from "$lib/components/validators/ValidatorTable.svelte"
 </script>
 
 <svelte:head>
-  <title>Stake SAFE — Safe Stake</title>
+  <title>Stake SAFE — Safenet Beta</title>
 </svelte:head>
 
-<section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-  <Card>
-    <StatNumber
-      label="Your stake"
-      value={formatSafe($staked.data)}
-      hint={$account.isConnected ? undefined : "Connect to view"}
-    />
-  </Card>
-  <Card>
-    <StatNumber
-      label="Wallet balance"
-      value={formatSafe($balance.data)}
-      hint={$account.isConnected ? undefined : "Connect to view"}
-    />
-  </Card>
-  <Card>
-    <StatNumber
-      label="Pending withdrawal"
-      value={formatSafe(pendingTotal)}
-      hint={$pending.data && $pending.data.length > 0
-        ? `${$pending.data.length} in queue`
-        : "—"}
-    />
-  </Card>
-</section>
+<div class="flex flex-col gap-8">
+  <header class="flex flex-col gap-2">
+    <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Validators</h1>
+    <p class="text-sm text-muted-foreground">
+      Stake SAFE to a validator securing Safenet Beta. Non-custodial — your
+      funds never leave your wallet.
+    </p>
+  </header>
 
-<StakeTabs />
+  <ValidatorStats />
+  <ValidatorTable />
+</div>

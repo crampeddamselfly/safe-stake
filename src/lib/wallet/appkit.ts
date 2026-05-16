@@ -1,6 +1,6 @@
 import { createAppKit, type AppKit } from "@reown/appkit"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
-import { mainnet, sepolia } from "@reown/appkit/networks"
+import { mainnet } from "@reown/appkit/networks"
 import type { AppKitNetwork } from "@reown/appkit/networks"
 import { watchAccount, watchChainId } from "@wagmi/core"
 import { writable, type Readable } from "svelte/store"
@@ -8,7 +8,7 @@ import type { Address } from "viem"
 
 const projectId = import.meta.env.VITE_REOWN_PROJECT_ID as string | undefined
 
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, sepolia]
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet]
 
 type AccountState = {
   address?: Address

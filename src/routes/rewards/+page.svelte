@@ -1,11 +1,10 @@
 <script lang="ts">
-  import Card from "$lib/ui/Card.svelte"
-  import Button from "$lib/ui/Button.svelte"
-  import StatNumber from "$lib/ui/StatNumber.svelte"
+  import * as Card from "$lib/components/ui/card"
+  import { Button } from "$lib/components/ui/button"
   import { account, chainId, openModal } from "$lib/wallet/appkit"
   import { rewardsQuery, claimRewards } from "$lib/hooks/useRewards"
   import { sanctionsQuery } from "$lib/hooks/useSanctions"
-  import { pushToast } from "$lib/ui/Toaster.svelte"
+  import { toast } from "svelte-sonner"
   import { useQueryClient } from "@tanstack/svelte-query"
   import { formatSafe, truncateAddress } from "$lib/utils/format"
   import { formatContractError } from "$lib/utils/errors"
@@ -25,7 +24,13 @@
   )
 
   async function submit() {
-    if (!ready || !$account.address || !$rewards.data?.proof || !$rewards.data.root || $rewards.data.cumulativeAmount === undefined)
+    if (
+      !ready ||
+      !$account.address ||
+      !$rewards.data?.proof ||
+      !$rewards.data.root ||
+      $rewards.data.cumulativeAmount === undefined
+    )
       return
     busy = true
     try {
@@ -36,19 +41,16 @@
         $rewards.data.root,
         $rewards.data.proof
       )
-      pushToast({
-        kind: "success",
-        title: "Rewards claimed",
-        detail: `Tx ${truncateAddress(res.hash)}`,
-        link: { href: txUrl($chainId, res.hash), label: "View on Etherscan" }
+      toast.success("Rewards claimed", {
+        description: `Tx ${truncateAddress(res.hash)}`,
+        action: {
+          label: "View",
+          onClick: () => window.open(txUrl($chainId, res.hash), "_blank")
+        }
       })
       await qc.invalidateQueries()
     } catch (err) {
-      pushToast({
-        kind: "error",
-        title: "Claim failed",
-        detail: formatContractError(err)
-      })
+      toast.error("Claim failed", { description: formatContractError(err) })
     } finally {
       busy = false
     }
@@ -56,53 +58,67 @@
 </script>
 
 <svelte:head>
-  <title>Rewards — Safe Stake</title>
+  <title>Rewards — Safenet Beta</title>
 </svelte:head>
 
-<Card title="Rewards" description="Claim SAFE rewards distributed via Merkle drop. Proofs are pinned to IPFS and served as static JSON — no backend required.">
-  {#if !$account.isConnected}
-    <p class="text-sm text-fg-muted">
-      Connect a wallet to view reward eligibility.
-      <button class="ml-2 underline" onclick={openModal}>Connect</button>
+<div class="flex flex-col gap-8">
+  <header class="flex flex-col gap-2">
+    <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Rewards</h1>
+    <p class="text-sm text-muted-foreground">
+      Claim SAFE rewards distributed via Merkle drop. Proofs served as static
+      JSON — no backend, no API key.
     </p>
-  {:else if $rewards.isLoading}
-    <p class="text-sm text-fg-muted">Loading reward state…</p>
-  {:else if $rewards.error}
-    <p class="text-sm text-danger">Error: {$rewards.error.message}</p>
-  {:else if !$rewards.data?.hasDrop}
-    <p class="text-sm text-fg-muted">No Merkle drop configured for this chain.</p>
-  {:else}
-    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-      <StatNumber
-        label="Total allocated"
-        value={formatSafe($rewards.data.cumulativeAllocated)}
-      />
-      <StatNumber
-        label="Already claimed"
-        value={formatSafe($rewards.data.cumulativeClaimed)}
-      />
-      <StatNumber
-        label="Claimable now"
-        value={formatSafe($rewards.data.claimable)}
-      />
-    </div>
+  </header>
 
-    {#if $rewards.data.cumulativeAllocated === 0n}
-      <p class="text-sm text-fg-muted">No rewards allocated to this address in the current Merkle root.</p>
-    {/if}
-
-    <Button
-      onclick={submit}
-      disabled={!ready || busy || !!$sanctioned.data}
-      loading={busy}
-      class="w-full"
-      size="lg"
-    >
-      {#if ready}
-        Claim rewards
+  <Card.Root>
+    <Card.Header>
+      <Card.Title>Claimable</Card.Title>
+      <Card.Description>
+        Allocations are tracked cumulatively on-chain. You can claim partial
+        amounts as new drops land.
+      </Card.Description>
+    </Card.Header>
+    <Card.Content class="flex flex-col gap-6">
+      {#if !$account.isConnected}
+        <p class="text-sm text-muted-foreground">
+          Connect a wallet to view reward eligibility.
+          <Button variant="link" class="px-1" onclick={openModal}>Connect</Button>
+        </p>
+      {:else if $rewards.isLoading}
+        <p class="text-sm text-muted-foreground">Loading reward state…</p>
+      {:else if $rewards.error}
+        <p class="text-sm text-destructive">Error: {$rewards.error.message}</p>
+      {:else if !$rewards.data?.hasDrop}
+        <p class="text-sm text-muted-foreground">No Merkle drop configured.</p>
       {:else}
-        Nothing to claim
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="flex flex-col gap-1">
+            <span class="text-xs uppercase tracking-wide text-muted-foreground">Total allocated</span>
+            <span class="font-mono text-2xl">{formatSafe($rewards.data.cumulativeAllocated)}</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-xs uppercase tracking-wide text-muted-foreground">Already claimed</span>
+            <span class="font-mono text-2xl">{formatSafe($rewards.data.cumulativeClaimed)}</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-xs uppercase tracking-wide text-muted-foreground">Claimable now</span>
+            <span class="font-mono text-2xl text-primary">{formatSafe($rewards.data.claimable)}</span>
+          </div>
+        </div>
+
+        <Button
+          size="lg"
+          class="w-full"
+          disabled={!ready || busy || !!$sanctioned.data}
+          onclick={submit}
+        >
+          {#if ready}
+            Claim rewards
+          {:else}
+            Nothing to claim
+          {/if}
+        </Button>
       {/if}
-    </Button>
-  {/if}
-</Card>
+    </Card.Content>
+  </Card.Root>
+</div>

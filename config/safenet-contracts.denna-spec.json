@@ -6,7 +6,7 @@
     "kind": "io.denna.defi.address-registry",
     "description": "Canonical multi-chain registry of Safenet Beta contract addresses (staking, SAFE token, sanctions oracle, Merkle drop). Consumed by the Denna Labs staking UI and any other tooling.",
     "version": "1.0.0",
-    "lastUpdated": "2026-05-15",
+    "lastUpdated": "2026-05-16",
     "tags": ["safe", "safenet-beta", "staking", "addresses"],
     "source": {
       "repository": "github.com/safe-fndn/safenet-staking-ui",
@@ -20,10 +20,6 @@
         {
           "chain": "ethereum",
           "address": { "value": "0x115E78f160e1E3eF163B05C84562Fa16fA338509", "format": "evm" }
-        },
-        {
-          "chain": "sepolia",
-          "address": { "value": "0x40745eec3fD6E4C005de1dec0031b2EA9f9D7c42", "format": "evm" }
         }
       ]
     },
@@ -33,11 +29,6 @@
         {
           "chain": "ethereum",
           "address": { "value": "0x5aFE3855358E112B5647B952709E6165e1c1eEEe", "format": "evm" }
-        },
-        {
-          "chain": "sepolia",
-          "address": { "value": "0xef98bcc90b1373b2ae0d23ec318d3ee70ea61af4", "format": "evm" },
-          "notes": "Test SAFE token. symbol() returns 'stake' on the test deployment."
         }
       ]
     },

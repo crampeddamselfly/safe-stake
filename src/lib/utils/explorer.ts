@@ -1,8 +1,7 @@
 import type { Hex } from "viem"
 
 const explorers: Record<number, string> = {
-  1: "https://etherscan.io",
-  11155111: "https://sepolia.etherscan.io"
+  1: "https://etherscan.io"
 }
 
 export function txUrl(chainId: number, hash: Hex): string {

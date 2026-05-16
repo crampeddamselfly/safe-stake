@@ -20,7 +20,11 @@ export default [
   },
   {
     rules: {
-      "no-useless-assignment": "off"
+      "no-useless-assignment": "off",
+      // shadcn-svelte primitives use rest props by design — components aren't
+      // custom-element targets, so the custom_element_props_identifier
+      // warning is noise.
+      "svelte/valid-compile": ["error", { ignoreWarnings: true }]
     }
   },
   { ignores: [".svelte-kit/**", "build/**", "node_modules/**"] }

@@ -1,4 +1,4 @@
-import { mainnet, sepolia } from "viem/chains"
+import { mainnet } from "viem/chains"
 import type { Chain } from "viem"
 import { getRpcUrl, getSupportedChainIds } from "$lib/spec/loader"
 
@@ -15,8 +15,7 @@ function withRpc(chain: Chain): Chain {
 }
 
 const all: Record<number, Chain> = {
-  [mainnet.id]: withRpc(mainnet),
-  [sepolia.id]: withRpc(sepolia)
+  [mainnet.id]: withRpc(mainnet)
 }
 
 export function getChain(chainId: number): Chain {
@@ -29,6 +28,4 @@ export function getSupportedChains(): Chain[] {
   return getSupportedChainIds().map(getChain)
 }
 
-export const DEFAULT_CHAIN_ID = Number(
-  import.meta.env.VITE_DEFAULT_CHAIN_ID ?? mainnet.id
-)
+export const DEFAULT_CHAIN_ID = mainnet.id
