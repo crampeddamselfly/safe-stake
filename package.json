@@ -1,6 +1,6 @@
 {
   "name": "safe-stake",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Independent non-custodial staking UI for Safenet Beta. Track A operator submission by Denna Labs.",
   "type": "module",
   "private": true,
