@@ -1,9 +1,9 @@
-# Safe Stake — Independent Safenet Beta Staking UI
+# Safe Stake: Independent Safenet Beta Staking UI
 
 > Track A operator submission for the [Safe Ecosystem Foundation RFP](https://forum.safefoundation.org/t/rfp-safenet-beta-staking-ui-call-for-operators/6992).
 > Operated by **Denna Labs**. Non-custodial. Open-source under MIT.
 
-A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change — all chain config lives in two [denna-spec](https://spec.denna.io) documents: `io.denna.defi.address-registry` for contract addresses and `io.safe.staking-ui-config` for validators, features, and reward pointers. Both schemas live in the canonical [`denna-spec`](https://github.com/daocraft/denna-spec) repo.
+A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change. All chain config lives in two [denna-spec](https://spec.denna.io) documents: `io.denna.defi.address-registry` for contract addresses and `io.safe.staking-ui-config` for validators, features, and reward pointers. Both schemas live in the canonical [`denna-spec`](https://github.com/daocraft/denna-spec) repo.
 
 - **Live (IPFS + ENS):** https://safenet-staking.denna.eth.limo
 - **Live (Vercel mirror):** https://safenet-staking.dennalabs.io
@@ -13,10 +13,10 @@ A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safe
 
 Reducing single-point-of-failure risk for SAFE staking is the explicit goal of the RFP. This UI adds:
 
-- **Stack diversity** — SvelteKit instead of the React reference, distinct bundle, distinct deploy pipeline.
-- **Config-driven forkability** — every contract address, RPC URL, validator entry, and Merkle drop pointer is one JSON file. Operators clone the repo, swap the config, redeploy. No code changes.
-- **Validator analytics** — sortable table with commission, stake share, sanctions status, CSV export.
-- **Multi-pin redundancy** — Pinata + Filebase + Vercel + Safe App manifest. ≥95% combined uptime.
+- **Stack diversity**: SvelteKit instead of the React reference, distinct bundle, distinct deploy pipeline.
+- **Config-driven forkability**: every contract address, RPC URL, validator entry, and Merkle drop pointer is one JSON file. Operators clone the repo, swap the config, redeploy. No code changes.
+- **Validator analytics**: sortable table with commission, stake share, sanctions status, CSV export.
+- **Multi-pin redundancy**: Pinata + Filebase + Vercel + Safe App manifest. ≥95% combined uptime.
 
 ## Architecture
 
