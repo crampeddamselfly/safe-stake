@@ -27,6 +27,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+      # semantic-release v25 requires Node >=22.14. oven-sh/setup-bun
+      # leaves the runner's default Node (20.x) in place, so install
+      # Node 22 explicitly. Bun resolves before Node on PATH for the
+      # rest of the steps; this only matters for the semantic-release
+      # Node subprocess.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx semantic-release
