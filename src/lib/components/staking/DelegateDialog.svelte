@@ -6,6 +6,8 @@
   import AlertTriangleIcon from "@lucide/svelte/icons/triangle-alert"
   import AmountInput from "./AmountInput.svelte"
   import WithdrawDelay from "./WithdrawDelay.svelte"
+  import TxProgressSteps from "$lib/components/tx/TxProgressSteps.svelte"
+  import { buttonLabel, type TxFlow } from "$lib/components/tx/steps"
   import { account, chainId } from "$lib/wallet/appkit"
   import { safeBalanceQuery, stakedAtValidatorQuery } from "$lib/hooks/useStakingReads"
   import { sanctionsQuery } from "$lib/hooks/useSanctions"
@@ -54,16 +56,19 @@
       ? `Stake tokens to validator ${truncateAddress(validator)}`
       : `Unstake from validator ${truncateAddress(validator)}`
   )
-  const cta = $derived(mode === "stake" ? "STAKE" : "INITIATE UNSTAKE")
+  const defaultCta = $derived(mode === "stake" ? "STAKE" : "INITIATE UNSTAKE")
+  const hasError = $derived(step === "error")
 
-  const stepLabel = $derived<Record<TxStep, string>>({
-    idle: cta,
-    approving: "Approving…",
-    staking: mode === "stake" ? "Staking…" : "Submitting…",
-    confirming: "Confirming…",
-    done: "Done",
-    error: "Retry"
-  })
+  // Flow inference for the progress UI — batched path only fires when the
+  // wallet signals atomicBatch support, which happens between
+  // awaiting-batch-sig and confirming-batch.
+  const flow: TxFlow = $derived(
+    step === "awaiting-batch-sig" || step === "confirming-batch"
+      ? "stake-batched"
+      : mode === "stake"
+        ? "stake"
+        : "unstake"
+  )
 
   const canSubmit = $derived(
     $account.isConnected &&
@@ -80,14 +85,20 @@
   }
 
   async function submit() {
-    if (!amount) return
+    if (!amount || !$account.address) return
     busy = true
     step = "idle"
     try {
       const res =
         mode === "stake"
-          ? await approveAndStake($chainId, validator, amount, (s) => (step = s))
-          : await initiateWithdrawal($chainId, validator, amount)
+          ? await approveAndStake(
+              $chainId,
+              $account.address,
+              validator,
+              amount,
+              (s) => (step = s)
+            )
+          : await initiateWithdrawal($chainId, validator, amount, (s) => (step = s))
       step = "done"
       toast.success(mode === "stake" ? "Staked" : "Withdrawal initiated", {
         description: `Tx ${truncateAddress(res.hash)}`,
@@ -109,7 +120,6 @@
     }
   }
 
-  // Reset on close
   $effect(() => {
     if (!open) resetState()
   })
@@ -132,8 +142,7 @@
         <AlertTriangleIcon class="size-4" />
         <Alert.Title>Address blocked</Alert.Title>
         <Alert.Description>
-          The connected address appears on the sanctions list. Writes are
-          disabled.
+          The connected address appears on the sanctions list. Writes are disabled.
         </Alert.Description>
       </Alert.Root>
     {/if}
@@ -149,14 +158,15 @@
       <WithdrawDelay />
     {/if}
 
+    {#if step !== "idle"}
+      <div class="rounded-md border border-border bg-muted/30 p-4">
+        <TxProgressSteps {step} {flow} {hasError} />
+      </div>
+    {/if}
+
     <Dialog.Footer>
-      <Button
-        onclick={submit}
-        disabled={!canSubmit}
-        class="w-full"
-        size="lg"
-      >
-        {stepLabel[step]}
+      <Button onclick={submit} disabled={!canSubmit} class="w-full" size="lg">
+        {buttonLabel(step, flow, defaultCta)}
       </Button>
     </Dialog.Footer>
   </Dialog.Content>

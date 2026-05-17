@@ -2,18 +2,23 @@
   import * as Card from "$lib/components/ui/card"
   import { Button } from "$lib/components/ui/button"
   import { account, chainId, openModal } from "$lib/wallet/appkit"
-  import { rewardsQuery, claimRewards } from "$lib/hooks/useRewards"
+  import { rewardsQuery } from "$lib/hooks/useRewards"
+  import { claimRewards, type TxStep } from "$lib/hooks/useStakingWrites"
   import { sanctionsQuery } from "$lib/hooks/useSanctions"
   import { toast } from "svelte-sonner"
   import { useQueryClient } from "@tanstack/svelte-query"
   import { formatSafe, truncateAddress } from "$lib/utils/format"
   import { formatContractError } from "$lib/utils/errors"
   import { txUrl } from "$lib/utils/explorer"
+  import TxProgressSteps from "$lib/components/tx/TxProgressSteps.svelte"
+  import { buttonLabel } from "$lib/components/tx/steps"
 
   const rewards = rewardsQuery()
   const sanctioned = sanctionsQuery()
   const qc = useQueryClient()
   let busy = $state(false)
+  let step = $state<TxStep>("idle")
+  const hasError = $derived(step === "error")
 
   const ready = $derived(
     !!$rewards.data?.claimable &&
@@ -33,14 +38,17 @@
     )
       return
     busy = true
+    step = "idle"
     try {
       const res = await claimRewards(
         $chainId,
         $account.address,
         $rewards.data.cumulativeAmount,
         $rewards.data.root,
-        $rewards.data.proof
+        $rewards.data.proof,
+        (s) => (step = s)
       )
+      step = "done"
       toast.success("Rewards claimed", {
         description: `Tx ${truncateAddress(res.hash)}`,
         action: {
@@ -49,7 +57,9 @@
         }
       })
       await qc.invalidateQueries()
+      step = "idle"
     } catch (err) {
+      step = "error"
       toast.error("Claim failed", { description: formatContractError(err) })
     } finally {
       busy = false
@@ -106,17 +116,19 @@
           </div>
         </div>
 
+        {#if step !== "idle"}
+          <div class="rounded-md border border-border bg-muted/30 p-4">
+            <TxProgressSteps {step} flow="claim-rewards" {hasError} />
+          </div>
+        {/if}
+
         <Button
           size="lg"
           class="w-full"
           disabled={!ready || busy || !!$sanctioned.data}
           onclick={submit}
         >
-          {#if ready}
-            Claim rewards
-          {:else}
-            Nothing to claim
-          {/if}
+          {buttonLabel(step, "claim-rewards", ready ? "Claim rewards" : "Nothing to claim")}
         </Button>
       {/if}
     </Card.Content>

@@ -7,13 +7,15 @@
     nextClaimableQuery
   } from "$lib/hooks/useStakingReads"
   import { sanctionsQuery } from "$lib/hooks/useSanctions"
-  import { claimWithdrawal } from "$lib/hooks/useStakingWrites"
+  import { claimWithdrawal, type TxStep } from "$lib/hooks/useStakingWrites"
   import { account, chainId, openModal } from "$lib/wallet/appkit"
   import { formatSafe, truncateAddress, formatCountdown } from "$lib/utils/format"
   import { formatContractError } from "$lib/utils/errors"
   import { txUrl } from "$lib/utils/explorer"
   import { toast } from "svelte-sonner"
   import { useQueryClient } from "@tanstack/svelte-query"
+  import TxProgressSteps from "$lib/components/tx/TxProgressSteps.svelte"
+  import { buttonLabel } from "$lib/components/tx/steps"
 
   const pending = pendingWithdrawalsQuery()
   const next = nextClaimableQuery()
@@ -21,6 +23,7 @@
   const qc = useQueryClient()
 
   let busy = $state(false)
+  let step = $state<TxStep>("idle")
 
   const now = $derived(BigInt(Math.floor(Date.now() / 1000)))
   const ready = $derived(
@@ -29,11 +32,14 @@
       $next.data.claimableAt > 0n &&
       $next.data.claimableAt <= now
   )
+  const hasError = $derived(step === "error")
 
   async function submit() {
     busy = true
+    step = "idle"
     try {
-      const res = await claimWithdrawal($chainId)
+      const res = await claimWithdrawal($chainId, (s) => (step = s))
+      step = "done"
       toast.success("Claimed", {
         description: `Tx ${truncateAddress(res.hash)}`,
         action: {
@@ -42,7 +48,9 @@
         }
       })
       await qc.invalidateQueries()
+      step = "idle"
     } catch (err) {
+      step = "error"
       toast.error("Claim failed", { description: formatContractError(err) })
     } finally {
       busy = false
@@ -103,17 +111,18 @@
     {/if}
 
     {#if $account.isConnected}
+      {#if step !== "idle"}
+        <div class="rounded-md border border-border bg-muted/30 p-4">
+          <TxProgressSteps {step} flow="claim-withdrawal" {hasError} />
+        </div>
+      {/if}
       <Button
         size="lg"
         class="w-full"
         onclick={submit}
         disabled={!ready || busy || !!$sanctioned.data}
       >
-        {#if ready}
-          Claim next withdrawal
-        {:else}
-          Nothing ready to claim
-        {/if}
+        {buttonLabel(step, "claim-withdrawal", ready ? "Claim next withdrawal" : "Nothing ready to claim")}
       </Button>
     {/if}
   </Card.Content>

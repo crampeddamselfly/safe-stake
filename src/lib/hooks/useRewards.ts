@@ -1,15 +1,10 @@
 import { derived } from "svelte/store"
 import { createQuery } from "@tanstack/svelte-query"
-import {
-  waitForTransactionReceipt,
-  writeContract
-} from "@wagmi/core"
-import { getAddress, type Address, type Hex } from "viem"
+import { getAddress, type Hex } from "viem"
 import { merkleDropAbi } from "$lib/contracts/merkleDropAbi"
 import { getPublicClient } from "$lib/chain/clients"
 import { getConfig } from "$lib/spec/loader"
 import { account, chainId } from "$lib/wallet/appkit"
-import { getWagmiConfig } from "$lib/wallet/appkit"
 
 export type MerkleClaim = {
   cumulativeAmount: string
@@ -88,22 +83,6 @@ export function rewardsQuery() {
   )
 }
 
-export async function claimRewards(
-  chainId: number,
-  account: Address,
-  cumulativeAmount: bigint,
-  root: Hex,
-  proof: Hex[]
-) {
-  const cfg = getConfig(chainId)
-  if (!cfg.contracts.merkleDrop) throw new Error("MerkleDrop not configured for this chain.")
-  const wagmiConfig = getWagmiConfig()
-  const hash = await writeContract(wagmiConfig, {
-    address: cfg.contracts.merkleDrop,
-    abi: merkleDropAbi,
-    functionName: "claim",
-    args: [account, cumulativeAmount, root, proof]
-  })
-  const receipt = await waitForTransactionReceipt(wagmiConfig, { hash, chainId })
-  return { hash, receipt }
-}
+// claimRewards moved to useStakingWrites.ts so it shares the granular onStep
+// reporter used by stake / unstake / claim flows.
+export { claimRewards } from "./useStakingWrites"
