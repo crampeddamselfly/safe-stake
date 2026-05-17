@@ -6,7 +6,7 @@
 A SvelteKit + viem frontend for staking, unstaking, and claiming rewards on Safenet Beta. Designed to be forkable in one JSON change. All chain config lives in two [denna-spec](https://spec.denna.io) documents: `io.denna.defi.address-registry` for contract addresses and `io.safe.staking-ui-config` for validators, features, and reward pointers. Both schemas live in the canonical [`denna-spec`](https://github.com/daocraft/denna-spec) repo.
 
 - **Live (IPFS + ENS):** https://safenet-staking.denna.eth.limo
-- **Live (Vercel mirror):** https://safenet-staking.dennalabs.io
+- **Live (Vercel mirror):** https://staking.safe.denna.io
 - **Reference UI:** https://staking.safenet-beta.eth.limo (Foundation-run)
 
 ## Why a second interface?
