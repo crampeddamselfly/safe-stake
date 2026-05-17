@@ -21,7 +21,19 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "verify:merkle": "tsx scripts/verify-merkle.ts",
-    "pin:ipfs": "tsx scripts/pin-to-ipfs.ts"
+    "pin:ipfs": "tsx scripts/pin-to-ipfs.ts",
+    "commitlint": "commitlint --edit",
+    "release": "semantic-release",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,css,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.2.8",
@@ -45,8 +57,16 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.8",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "@sveltejs/adapter-static": "^3.0.6",
     "@sveltejs/kit": "^2.8.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
@@ -59,8 +79,11 @@
     "eslint": "^9.16.0",
     "eslint-plugin-svelte": "^2.46.0",
     "globals": "^15.13.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.4.0",
     "prettier-plugin-svelte": "^3.3.0",
+    "semantic-release": "^25.0.3",
     "svelte": "^5.2.0",
     "svelte-check": "^4.1.0",
     "tailwindcss": "^4.0.0-beta.7",
