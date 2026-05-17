@@ -19,3 +19,5 @@ vite.config.*.timestamp-*
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+PLAN.md

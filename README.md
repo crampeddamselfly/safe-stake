@@ -39,7 +39,7 @@ config/
 
 ## Fork & redeploy
 
-1. `git clone https://github.com/crampeddamselfly/safe-stake your-fork`
+1. `git clone https://github.com/daocraft/safe-stake your-fork`
 2. Edit `config/safenet-contracts.denna-spec.json` (addresses per chain) and `config/safe-stake-ui.denna-spec.json` (validators, features, rewards). Both are canonical [denna-spec](https://schemas.denna.io) files.
 3. Update `static/manifest.json` with your Safe App name and icon.
 4. `bun install && bun run build` → static SPA in `build/`.
@@ -60,19 +60,19 @@ bun run validate:spec # JSON Schema check on config/
 
 ## Environment
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `VITE_REOWN_PROJECT_ID` | yes | Reown / WalletConnect v2 project id (free at https://cloud.reown.com) |
-| `VITE_RPC_URL_1` | no | Override mainnet RPC |
-| `VITE_DEFAULT_CHAIN_ID` | no | Initial chain id (default `1`) |
-| `VITE_SITE_ORIGIN` | no | Canonical origin for OG + Safe App manifest |
+| Variable                | Required | Purpose                                                               |
+| ----------------------- | -------- | --------------------------------------------------------------------- |
+| `VITE_REOWN_PROJECT_ID` | yes      | Reown / WalletConnect v2 project id (free at https://cloud.reown.com) |
+| `VITE_RPC_URL_1`        | no       | Override mainnet RPC                                                  |
+| `VITE_DEFAULT_CHAIN_ID` | no       | Initial chain id (default `1`)                                        |
+| `VITE_SITE_ORIGIN`      | no       | Canonical origin for OG + Safe App manifest                           |
 
 ## Contract addresses
 
 Loaded from `config/safenet-contracts.denna-spec.json` (`io.denna.defi.address-registry`). Current defaults:
 
-| Network | Staking | SAFE token | Sanctions Oracle |
-|---|---|---|---|
+| Network     | Staking                                      | SAFE token                                   | Sanctions Oracle                             |
+| ----------- | -------------------------------------------- | -------------------------------------------- | -------------------------------------------- |
 | Mainnet (1) | `0x115E78f160e1E3eF163B05C84562Fa16fA338509` | `0x5aFE3855358E112B5647B952709E6165e1c1eEEe` | `0x40C57923924B5c5c5455c48D93317139ADDaC8fb` |
 
 ## Acknowledgements
