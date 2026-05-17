@@ -148,6 +148,58 @@ export function stakedAtValidatorQuery(validator: () => Address | undefined) {
   )
 }
 
+// Single multicall returning every known validator's user stake, keyed by
+// validator address (checksummed, matches values in spec config). Used by
+// both the Validators table and the Rewards delegations table — extracted
+// from ValidatorTable.svelte so the two stay in sync.
+export function userStakesQuery() {
+  return createQuery(
+    derived([account, chainId], ([$a, $c]) => ({
+      queryKey: ["userStakes", $c, $a.address ?? null] as const,
+      queryFn: async (): Promise<Record<string, bigint>> => {
+        if (!$a.address) return {}
+        const cfg = getConfig($c)
+        if (cfg.validators.length === 0) return {}
+        const client = getPublicClient($c)
+        const calls = cfg.validators.map((v) => ({
+          address: cfg.contracts.staking,
+          abi: stakingAbi,
+          functionName: "stakes" as const,
+          args: [$a.address!, v.address.value] as const
+        }))
+        const out: Record<string, bigint> = {}
+        try {
+          const results = await client.multicall({
+            contracts: calls,
+            allowFailure: true
+          })
+          cfg.validators.forEach((v, i) => {
+            const r = results[i]
+            out[v.address.value] =
+              r?.status === "success" ? (r.result as bigint) : 0n
+          })
+        } catch {
+          for (const v of cfg.validators) {
+            try {
+              out[v.address.value] = (await client.readContract({
+                address: cfg.contracts.staking,
+                abi: stakingAbi,
+                functionName: "stakes",
+                args: [$a.address!, v.address.value]
+              })) as bigint
+            } catch {
+              out[v.address.value] = 0n
+            }
+          }
+        }
+        return out
+      },
+      enabled: !!$a.address,
+      refetchInterval: REFRESH_MS
+    }))
+  )
+}
+
 export function withdrawDelayQuery() {
   return createQuery(
     derived(chainId, ($c) => ({
