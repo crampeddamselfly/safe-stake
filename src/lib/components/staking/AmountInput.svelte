@@ -5,6 +5,10 @@
   import { Label } from "$lib/components/ui/label"
   import { formatSafe } from "$lib/utils/format"
 
+  // Module-level reference so rollup's static analyzer doesn't drop the
+  // parseUnits import while preprocessing the Svelte block.
+  const _parse: typeof parseUnits = parseUnits
+
   let {
     value = $bindable<bigint | undefined>(),
     max,
@@ -27,7 +31,7 @@
       return
     }
     try {
-      const n = parseUnits(raw as `${number}`, 18)
+      const n = _parse(raw as `${number}`, 18)
       if (n <= 0n) {
         internalError = "Must be greater than zero."
         value = undefined

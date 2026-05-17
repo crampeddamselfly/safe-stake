@@ -3,7 +3,11 @@
   import { Button } from "$lib/components/ui/button"
   import { Badge } from "$lib/components/ui/badge"
   import { Input } from "$lib/components/ui/input"
-  import { validatorsQuery, totalStakedQuery } from "$lib/hooks/useStakingReads"
+  import {
+    validatorsQuery,
+    totalStakedQuery,
+    userStakesQuery
+  } from "$lib/hooks/useStakingReads"
   import { validatorMetaQuery } from "$lib/hooks/useValidatorMeta"
   import {
     decorate,
@@ -15,12 +19,6 @@
   import { account } from "$lib/wallet/appkit"
   import { cn } from "$lib/utils/cn"
   import DelegateDialog from "$lib/components/staking/DelegateDialog.svelte"
-  import { createQuery } from "@tanstack/svelte-query"
-  import { derived } from "svelte/store"
-  import { getPublicClient } from "$lib/chain/clients"
-  import { getConfig } from "$lib/spec/loader"
-  import { stakingAbi } from "$lib/contracts/stakingAbi"
-  import { chainId } from "$lib/wallet/appkit"
 
   const validators = validatorsQuery()
   const totalStaked = totalStakedQuery()
@@ -43,52 +41,10 @@
     dialogOpen = true
   }
 
-  // One multicall per refetch covering all validator stakes for the user.
-  // Returns a map keyed by validator address.
-  const userStakesQuery = createQuery(
-    derived([account, chainId], ([$a, $c]) => ({
-      queryKey: ["userStakes", $c, $a.address ?? null] as const,
-      queryFn: async (): Promise<Record<string, bigint>> => {
-        if (!$a.address || !$validators.data) return {}
-        const cfg = getConfig($c)
-        const client = getPublicClient($c)
-        const calls = $validators.data.map((v) => ({
-          address: cfg.contracts.staking,
-          abi: stakingAbi,
-          functionName: "stakes" as const,
-          args: [$a.address!, v.address.value] as const
-        }))
-        const out: Record<string, bigint> = {}
-        try {
-          const results = await client.multicall({ contracts: calls, allowFailure: true })
-          $validators.data.forEach((v, i) => {
-            const r = results[i]
-            out[v.address.value] = r?.status === "success" ? (r.result as bigint) : 0n
-          })
-        } catch {
-          // Fallback: sequential reads
-          for (const v of $validators.data) {
-            try {
-              out[v.address.value] = (await client.readContract({
-                address: cfg.contracts.staking,
-                abi: stakingAbi,
-                functionName: "stakes",
-                args: [$a.address!, v.address.value]
-              })) as bigint
-            } catch {
-              out[v.address.value] = 0n
-            }
-          }
-        }
-        return out
-      },
-      enabled: !!$a.address && !!$validators.data,
-      refetchInterval: 20_000
-    }))
-  )
+  const userStakes = userStakesQuery()
 
   function userStakeFor(addr: Address): bigint {
-    return $userStakesQuery.data?.[addr] ?? 0n
+    return $userStakes.data?.[addr] ?? 0n
   }
 
   const rows = $derived.by(() => {

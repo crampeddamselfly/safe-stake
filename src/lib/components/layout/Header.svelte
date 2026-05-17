@@ -14,31 +14,39 @@
   ]
 </script>
 
-<header
-  class="sticky top-0 z-40 w-full border-b border-border bg-background/70 backdrop-blur-md"
->
-  <Container class="flex h-14 items-center justify-between md:h-16">
-    <div class="flex items-center gap-6">
-      <Logo />
-      <nav aria-label="Primary" class="hidden items-center gap-1 text-sm md:flex">
-        {#each navItems as item (item.href)}
-          <a
-            href={item.href}
-            class={cn(
-              "rounded-md px-3 py-1.5 transition-colors text-muted-foreground hover:text-foreground hover:bg-accent",
-              page.url.pathname === item.href && "text-foreground font-medium"
-            )}
-            aria-current={page.url.pathname === item.href ? "page" : undefined}
-          >
-            {item.label}
-          </a>
-        {/each}
-      </nav>
-    </div>
-    <div class="flex items-center gap-1.5">
-      <SettingsButton />
-      <ThemeToggle />
-      <ConnectButton />
+<header class="sticky top-0 z-40 w-full sm:pt-4">
+  <Container>
+    <div
+      class={cn(
+        "flex h-14 items-center justify-between gap-3 px-3 md:h-16 md:px-4",
+        "border-b border-border/60 bg-background/80 backdrop-blur-md",
+        "supports-[backdrop-filter]:bg-background/55",
+        "sm:rounded-2xl sm:border sm:shadow-lg sm:shadow-foreground/5"
+      )}
+    >
+      <div class="flex items-center gap-6">
+        <Logo />
+        <nav aria-label="Primary" class="hidden items-center gap-1 text-sm md:flex">
+          {#each navItems as item (item.href)}
+            <a
+              href={item.href}
+              class={cn(
+                "rounded-md px-3 py-1.5 transition-colors",
+                "text-muted-foreground hover:bg-accent hover:text-foreground",
+                page.url.pathname === item.href && "font-medium text-foreground"
+              )}
+              aria-current={page.url.pathname === item.href ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          {/each}
+        </nav>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <SettingsButton />
+        <ThemeToggle />
+        <ConnectButton />
+      </div>
     </div>
   </Container>
 </header>

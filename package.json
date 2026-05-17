@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "svelte-kit sync && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && eslint .",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -21,8 +21,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "verify:merkle": "tsx scripts/verify-merkle.ts",
-    "pin:ipfs": "tsx scripts/pin-to-ipfs.ts",
-    "validate:spec": "ajv validate --spec=draft2020 -c ajv-formats -s ../denna-spec/v1/defi/address-registry.schema.json -r ../denna-spec/v1/denna-types.schema.json -d config/safenet-contracts.denna-spec.json && ajv validate --spec=draft2020 -c ajv-formats -s ../denna-spec/v1/safe/staking-ui-config.schema.json -r ../denna-spec/v1/denna-types.schema.json -d config/safe-stake-ui.denna-spec.json"
+    "pin:ipfs": "tsx scripts/pin-to-ipfs.ts"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.2.8",
