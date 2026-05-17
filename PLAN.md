@@ -12,7 +12,7 @@ interface. Grant: **up to 100,000 SAFE per operator**. **Deadline:
 **Operator entity:** Denna Labs. **ENS:** `safenet-staking.denna.eth`. **Track A:**
 permissionless, non-custodial, open-source. **Repo:**
 `/Users/emmettbrown/projects/safe-stake` (already cloned;
-remote `crampeddamselfly/safe-stake`, currently empty).
+remote `daocraft/safe-stake`, currently empty).
 
 User decision: ship a **finished frontend**, not a skeleton, by the
 submission deadline. This plan is the day-by-day build path to a working,
@@ -28,7 +28,7 @@ to the upstream `denna-spec` repo.
 | RFP Requirement | How Met |
 |---|---|
 | Fully non-custodial | viem-only writes; no backend signs |
-| Open-source frontend | MIT; public `crampeddamselfly/safe-stake` |
+| Open-source frontend | MIT; public `daocraft/safe-stake` |
 | Direct Safenet contract interaction | Vendored ABIs from `safe-fndn/safenet-staking-ui` |
 | Stake / unstake / claim rewards | All three by end of Day 2 |
 | Wallet support: injected, WalletConnect, Safe Apps | Reown AppKit + Safe Apps SDK |
@@ -246,7 +246,7 @@ Combined target ≥95% uptime per RFP.
 - [ ] `.env.example`, `README.md` (architecture + fork-and-redeploy steps)
 - [ ] LICENSE (MIT) + LICENSE-NOTICES (ABI attribution)
 - [ ] `.github/workflows/ci.yml`
-- [ ] First commit + push to `crampeddamselfly/safe-stake`
+- [ ] First commit + push to `daocraft/safe-stake`
 - [ ] Smoke-test on Sepolia: connect MetaMask, see balance
 
 ### Day 2 — Thu 2026-05-15
@@ -379,7 +379,7 @@ To `rfp+staking@safefoundation.org`:
 > **Track:** A — permissionless, non-custodial.
 >
 > **Solution:** SvelteKit + viem + Reown AppKit. Open-source MIT at
-> https://github.com/crampeddamselfly/safe-stake. Config-driven via a new
+> https://github.com/daocraft/safe-stake. Config-driven via a new
 > `io.safe.staking-config` schema PR'd to denna-spec, so other operators can
 > fork and redeploy with one JSON change.
 >

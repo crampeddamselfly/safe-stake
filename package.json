@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/crampeddamselfly/safe-stake"
+    "url": "https://github.com/daocraft/safe-stake"
   },
   "scripts": {
     "dev": "vite dev",
